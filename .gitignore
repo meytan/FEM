@@ -1,0 +1,4 @@
+.vscode
+.pytest_cache
+fem.egg-info
+__pycache__
