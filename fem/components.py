@@ -1,4 +1,8 @@
+import math
 import numpy as np
+from typing import List
+from fem import integrationpoint
+
 
 class Node:
     def __init__(self, id, x, y, boundary_condition=False, temperature=0):
@@ -9,90 +13,48 @@ class Node:
         self.boundary_condition = boundary_condition
 
 
+class Edge:
+    def __init__(self, node1: Node, node2: Node):
+        self.nodes = [node1, node2]
+        self.length = math.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2)
+        if node1.boundary_condition is True and node2.boundary_condition is True:
+            self.boundary_condition = True
+        else:
+            self.boundary_condition = False
+
+
 class Element:
-    def __init__(self, id, adjacent_nodes):
+    def __init__(self, id: int, adjacent_nodes: List[Node]):
         self.id = id
         self.adjacent_nodes = adjacent_nodes
-
-class Universal_Element:
-    def set_params(ksi, eta):
-        self.ksi = ksi
-        self.eta = eta
-        
-    def generate_shape_functions():
-        n1 = 0.25 * (1 - self.ksi)*(1 - self.eta)
-        n2 = 0.25 * (1 + self.ksi)*(1 - self.eta)
-        n3 = 0.25 * (1 + self.ksi)*(1 + self.eta)
-        n4 = 0.25 * (1 - self.ksi)*(1 + self.eta)
-        n1_ksi = -0.25 * (1 - self.eta)
-        n2_ksi = 0.25 * (1 - self.eta)
-        n3_ksi = 0.25 * (1 + self.eta)
-        n4_ksi = -0.25 * (1 + self.eta)
-        n1_eta = -0.25 * (1 - self.ksi)
-        n2_eta = -0.25 * (1 + self.ksi)
-        n3_eta = 0.25 * (1 + self.ksi)
-        n4_eta = 0.25 * (1 - self.ksi)
-        self.shape_functions = np.array([n1, n2, n3 ,n4])
-        self.shape_functions_ksi_derivative = np.array([n1_ksi, n2_ksi, n3_ksi ,n4_ksi])
-        self.shape_functions_eta_derivative = np.array([n1_eta, n2_eta, n3_eta ,n4_eta])
+        self.edges: List[Edge] = [
+            Edge(adjacent_nodes[0], adjacent_nodes[1]),
+            Edge(adjacent_nodes[1], adjacent_nodes[2]),
+            Edge(adjacent_nodes[3], adjacent_nodes[2]),
+            Edge(adjacent_nodes[0], adjacent_nodes[3])
+        ]
+        if [x for x in self.edges if x.boundary_condition is True]:
+            self.boundary_condition = True
+        else:
+            self.boundary_condition = False
 
 
+class IntegrationPoints:
+    # Takes values in format [(point value, weight)]
+    def __init__(self, values):
+        self.integration_points = []
+        for eta in values:
+            for ksi in values:
+                self.integration_points.append(integrationpoint.IntegrationPoint(eta[0], ksi[0], eta[1] * ksi[1]))
 
-class Gird:
-    def __init__(self, width, height, nodes_horizontally, nodes_vertically):
-        self.width = width
-        self.height = height
-        self.nodes_horizontally = nodes_horizontally
-        self.nodes_vertically = nodes_vertically
-        self.element_width = self.width / self.nodes_horizontally
-        self.element_height = self.height / self.nodes_vertically
-        self.nodes_number = self.nodes_horizontally * self.nodes_vertically
-        self.elements_number = (nodes_horizontally - 1) * (nodes_vertically - 1)
-        self.elements_horizontally = nodes_horizontally - 1
-        self.elements_vertically = nodes_vertically - 1
+    def get(self):
+        return self.integration_points
 
-    def create_grid(self):
-        self.nodes = []
-        self.elements = []
-        for node_id in range(self.nodes_number):
-            x = node_id // self.nodes_vertically
-            y = node_id % self.nodes_vertically
-            if (
-                x == 0
-                or y == 0
-                or x == self.nodes_horizontally - 1
-                or y == self.nodes_vertically - 1
-            ):
-                bc = True
-            else:
-                bc = False
-            self.nodes.append(Node(node_id, x, y, boundary_condition=bc))
 
-        for element_id in range(self.elements_number):
-            nodes = self.generate_adjacent_nodes_for_element(element_id)
-            self.elements.append(Element(element_id, nodes))
-
-    def generate_adjacent_nodes_for_element(self, element_id):
-        adjacent_nodes = []
-        adjacent_nodes.append(
-            element_id
-            + (element_id // self.elements_vertically))
-
-        adjacent_nodes.append(
-            element_id
-            + (element_id // self.elements_vertically) + 1)
-
-        adjacent_nodes.append(
-            element_id
-            + (element_id // self.elements_vertically)
-            + self.nodes_vertically
-            + 1
-        )
-
-        adjacent_nodes.append(
-            element_id
-            + (element_id // self.elements_vertically)
-            + self.nodes_vertically
-        )
-        return adjacent_nodes
-
+class GlobalData:
+    def __init__(self, integration_points: IntegrationPoints, k: float, c: float, ro: float, alpha: float):
+        self.k = k
+        self.integration_points = integration_points
+        self.c = c
+        self.ro = ro
+        self.alpha = alpha
