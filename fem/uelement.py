@@ -1,5 +1,6 @@
 import numpy as np
-from fem.components import Element, GlobalData
+from fem.components import Element
+from fem.globaldata import GlobalData
 from fem.integrationpoint import IntegrationPoint
 
 
@@ -22,10 +23,14 @@ class UniversalElement:
             N_Nt = np.matrix(integration_point.shape_function).transpose() * integration_point.shape_function
             self.C_matrix += global_data.c * global_data.ro * N_Nt * integration_point.det_jacobian * integration_point.weight
 
-        # if self.element.boundary_condition:
-        #     for edge in self.element.edges:
-        #         if edge.boundary_condition:
-        #             if edge
+        if self.element.boundary_condition:
+            for edge in enumerate(self.element.edges):
+                if edge[1].boundary_condition:
+                    self.H_matrix += edge[1].calculate_hbc(global_data, edge[0])
+
+        self.element.set_h_matrix(self.H_matrix)
+        self.element.set_c_matrix(self.C_matrix)
+
 
 
 
