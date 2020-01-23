@@ -15,10 +15,10 @@ class IntegrationPoint:
         self.shape_functions_xy_derivatives = 0
 
     def generate_shape_functions(self) -> np.array:
-        n1 = 0.25 * (1 - self.ksi) *(1 - self.eta)
-        n2 = 0.25 * (1 + self.ksi) *(1 - self.eta)
-        n3 = 0.25 * (1 + self.ksi) *(1 + self.eta)
-        n4 = 0.25 * (1 - self.ksi) *(1 + self.eta)
+        n1 = 0.25 * (1 - self.ksi) * (1 - self.eta)
+        n2 = 0.25 * (1 + self.ksi) * (1 - self.eta)
+        n3 = 0.25 * (1 + self.ksi) * (1 + self.eta)
+        n4 = 0.25 * (1 - self.ksi) * (1 + self.eta)
         return np.array([n1, n2, n3, n4])
 
     def generate_shape_functions_ksi_derivative(self) -> np.array:
