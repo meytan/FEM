@@ -30,8 +30,9 @@ class UniversalElement:
             for edge in enumerate(self.element.edges):
                 if edge[1].boundary_condition:
                     self.Hbc_matrix += edge[1].calculate_hbc(global_data, edge[0])
-        for edge in enumerate(self.element.edges):
-            self.P_vector[edge[0]] = edge[1].calculate_P_vector_entnry(global_data)
+        for edge in self.element.edges:
+            res = edge.calculate_P_vector_entnry(global_data)
+            self.P_vector += res
 
         self.element.set_h_matrix(self.H_matrix)
         self.element.set_hbc_matrix(self.Hbc_matrix)

@@ -16,9 +16,10 @@ class Node:
 
 
 class Edge:
-    def __init__(self, node1: Node, node2: Node):
+    def __init__(self, node1: Node, node2: Node, local_id: int):
         self.nodes = [node1, node2]
         self.length = math.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2)
+        self.local_id = local_id
         if node1.boundary_condition is True and node2.boundary_condition is True:
             self.boundary_condition = True
         else:
@@ -86,18 +87,31 @@ class Edge:
         def n2(ksi):
             return 0.5 * (1+ksi)
 
-        value = 0.0
+        value = np.zeros(2)
         if self.boundary_condition is True:
             detJ = self.length / 2
             for integration_point in global_data.edges_integration_points:
                 ksi = integration_point[0]
                 weight = integration_point[1]
-
-                value += (n1(ksi) + n2(ksi)) * weight
+                value += np.array(n1(ksi), n2(ksi)) * weight
 
             value = value * global_data.alpha * global_data.temerature_oo * detJ
+        result = np.zeros(4)
 
-        return value
+        if self.local_id == 0:
+            result[0] += value[0]
+            result[1] += value[1]
+        elif self.local_id == 1:
+            result[1] += value[0]
+            result[2] += value[1]
+        elif self.local_id == 2:
+            result[3] += value[0]
+            result[2] += value[1]
+        elif self.local_id == 3:
+            result[0] += value[0]
+            result[3] += value[1]
+
+        return result
 
 
 class Element:
@@ -109,10 +123,10 @@ class Element:
         self.id = id
         self.adjacent_nodes = adjacent_nodes
         self.edges: List[Edge] = [
-            Edge(adjacent_nodes[0], adjacent_nodes[1]),
-            Edge(adjacent_nodes[1], adjacent_nodes[2]),
-            Edge(adjacent_nodes[3], adjacent_nodes[2]),
-            Edge(adjacent_nodes[0], adjacent_nodes[3])
+            Edge(adjacent_nodes[0], adjacent_nodes[1], 0),
+            Edge(adjacent_nodes[1], adjacent_nodes[2], 1),
+            Edge(adjacent_nodes[3], adjacent_nodes[2], 2),
+            Edge(adjacent_nodes[0], adjacent_nodes[3], 3)
         ]
         if [x for x in self.edges if x.boundary_condition is True]:
             self.boundary_condition = True

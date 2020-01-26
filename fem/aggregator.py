@@ -17,7 +17,7 @@ class Aggregator:
             for x in enumerate(element.get_transpose_indexes_for_global_matrix()):
                 for y in enumerate(x[1]):
                     self.global_H_matrix[y[1][0]][y[1][1]] += (element.H_matrix + element.Hbc_matrix)[x[0]][y[0]]
-                    self.global_C_matrix[y[1][0]][y[1][1]] += element.C_matrix[x[0]][y[0]]
+                    self.global_C_matrix[y[1][0]][y[1][1]] += element.C_matrix[x[0]][y[0]] 
             for x in enumerate([node.id for node in element.adjacent_nodes]):
                 self.global_P_vector[x[1]] += element.P_vector[x[0]]
 
