@@ -7,7 +7,6 @@ authors = ["Kacper Krzyzak"]
 [tool.poetry.dependencies]
 python = "^3.7"
 numpy = "^1.17"
-black = {git = "https://github.com/psf/black.git"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
