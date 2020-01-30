@@ -1,0 +1,16 @@
+{
+  "initialTemperature": 100,
+  "time": 100,
+  "timeStep": 1,
+  "ambientTemperature": 1200,
+  "alpha": 300,
+  "height": 0.1,
+  "width": 0.1,
+  "nodesVertically": 31,
+  "nodesHorizontally": 31,
+  "specificHeat": 700,
+  "conductivity": 25,
+  "density": 7800
+}
+
+

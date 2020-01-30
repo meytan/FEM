@@ -22,6 +22,7 @@ class Aggregator:
                 self.global_P_vector[x[1]] += element.P_vector[x[0]]
 
     def start_simulation(self):
+        print("Time     Min. Temp.          Max. Temp.")
         for time in range(0, self.global_data.time, self.global_data.dt):
             self.global_temperature_vector = [node.temperature for node in self.grid.nodes]
             c_matrix_dt = self.global_C_matrix / self.global_data.dt
